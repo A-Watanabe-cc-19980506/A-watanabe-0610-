@@ -9,6 +9,7 @@ https://work.code-strategy.app/work/mysql/sql
 
 ■環境構築
 ・「work_submit/MySQL/docker-compose.yml」に設定は記述済みなので、コンテナを立ち上げて課題に取り組んでください。
+・ dockerではhostをコンテナ名で指定しなければならないことに注意して実装してください。
 
 ■提出ファイル
 「work_submit/MySQL」に任意のディレクトリ構成、任意のファイル名で、実装課題およびSQL問題の回答となるSQL文を記述したファイルを提出してください。
