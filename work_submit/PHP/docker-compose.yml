@@ -1,33 +1,11 @@
 version: '3'
 
 services:
-  nginx:
-    image: nginx:stable-alpine
+  php_apache:
+    build:
+      context: .
+      dockerfile: ./apache/Dockerfile
     ports:
       - "8080:80"
     volumes:
       - ./src:/var/www/html
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-
-  php:
-    build: ./php
-    volumes:
-      - ./src:/var/www/html
-
-  db:
-    build:
-      context: .
-      dockerfile: ./db/Dockerfile
-    ports:
-      - 3306:3306
-    environment:
-      MYSQL_DATABASE: database
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
-      MYSQL_ROOT_PASSWORD: password
-      TZ: 'Asia/Tokyo'
-    volumes:
-      - mysql-volume:/var/lib/mysql
-      
-volumes:
-  mysql-volume:
