@@ -11,17 +11,16 @@ https://work.code-strategy.app/work/php/algo_2
 https://work.code-strategy.app/work/php/algo_3
 https://work.code-strategy.app/work/php/algo_4
 
-
 ■環境構築
 ・「work_submit/PHP/docker-compose.yml」に設定は記述済みなので、コンテナを立ち上げて課題に取り組んでください。
 
 ■提出ファイル
-「work_submit/PHP/src」ディレクトリ内に任意のディレクトリ構成、任意のファイル名で提出してください。
-JavaScriptのworkで実装したファイルを流用してください。
+・JavaScriptのworkで実装したファイルを流用してください。
+・「work_submit/PHP/src」ディレクトリ内に任意のディレクトリ構成、任意のファイル名で提出してください。
+・アルゴリズム問題は「work_submit/PHP/src/php」内の「algo_1.php」、「algo_2.php」、「algo_3.php」、「algo_4.php」各ファイルに回答となる実装をして提出してください。
 
 ■課題用のファイル
-画像ファイル：JavaScriptのworkで使った画像をPHPディレクトリの任意の箇所に配置してください。
-アルゴリズム問題：「work_submit/PHP/src/php」内の4つの問題
+画像ファイル：JavaScriptのworkで使った画像をPHPディレクトリの適当な箇所に配置してください。
 
 ■実装要件
 workの進め方/PHP/実装要件.txt　を参照

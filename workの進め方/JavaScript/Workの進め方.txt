@@ -13,6 +13,3 @@ https://work.code-strategy.app/work/javascript
 ■実装要件
 workの進め方/JavaScript/実装要件.txt　を参照
 
-■注意点
-・「果物のある生活」の説明のテキストがスクロールイベントで実装されていること。
-・画像を切り替えるボタンのhover時の挙動が見本通りであること。
