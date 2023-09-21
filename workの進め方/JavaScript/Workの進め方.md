@@ -1,0 +1,15 @@
+このworkは実装要件を満たして見本と同じ実装をできたら完了となります。
+
+■見本サイト  
+https://work.code-strategy.app/work/javascript
+
+■提出ファイル  
+「work_submit」フォルダの「JavaScript」フォルダに「work.html」と「work.css」と「work.js」と命名したファイルを作成して提出してください。  
+ディレクトリ構成は任意とします。
+
+■課題用のファイル  
+画像ファイル：「work_submit/JavaScript/img」内のファイル
+
+■実装要件  
+workの進め方/JavaScript/実装要件.md　を参照
+
