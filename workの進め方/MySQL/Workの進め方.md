@@ -25,7 +25,8 @@ PHPのworkで実装したファイルを流用してください。
 画像ファイル：JavaScriptのworkで使った画像をMySQLディレクトリの適当な箇所に配置してください。
 
 ■実装要件  
-workの進め方/MySQL/実装要件.md　を参照
+Googleドライブ>カリキュラム生共有>workの実装資料>MySQL.pdf　を参照  
+https://drive.google.com/drive/u/0/folders/1Y5nPMgDluBJ2nRU9z08n1EelKUGHY4z2
 
 ■提出のルール  
 ・プルリクエストのコメントに実装課題のトップページにあたるURLを記載してください。  

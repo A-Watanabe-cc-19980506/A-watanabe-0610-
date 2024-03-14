@@ -11,5 +11,5 @@ https://work.code-strategy.app/work/javascript
 画像ファイル：「work_submit/JavaScript/img」内のファイル
 
 ■実装要件  
-workの進め方/JavaScript/実装要件.md　を参照
-
+Googleドライブ>カリキュラム生共有>workの実装資料>JS.pdf　を参照  
+https://drive.google.com/drive/u/0/folders/1Y5nPMgDluBJ2nRU9z08n1EelKUGHY4z2
