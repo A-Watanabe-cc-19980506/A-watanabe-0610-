@@ -12,4 +12,4 @@ https://work.code-strategy.app/work/javascript
 
 ■実装要件  
 Googleドライブ>カリキュラム生共有>workの実装資料>JS.pdf　を参照  
-https://drive.google.com/drive/u/0/folders/1Y5nPMgDluBJ2nRU9z08n1EelKUGHY4z2
+https://drive.google.com/drive/u/0/folders/10TLlIa-O0rmUaU2GTlI89vB2aQ-JQiwf
