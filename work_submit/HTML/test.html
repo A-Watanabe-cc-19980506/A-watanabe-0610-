@@ -1,0 +1,103 @@
+<html>
+
+<head>
+    <title>HTMLについて学ぼう</title>
+    <meta charset="utf-8">
+    <meta name="description" content="このLESSONではHTMLについて学べます。">
+</head>
+
+<body>
+    <header>
+        <h1>よく使うタグをいくつか使ってみましょう</h1>
+        <p>はじめはtable</p>
+        <p>次にimgタグ</p>
+        <p>その次にulタグ</p>
+        <p>最後にformタグを使いましょう</p>
+        <br>
+    </header>
+    <div>
+        <ol>
+            <li>tableタグ</li>
+            <p>CSSを使えばtableの枠線をつけることができます。</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th><strong>名前</strong></th>
+                        <th><strong>年齢</strong></th>
+                        <th><strong>出身</strong></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>田中</td>
+                        <td>20</td>
+                        <td>東京</td>
+                    </tr>
+                    <tr>
+                        <td>山田</td>
+                        <td>30</td>
+                        <td>大阪</td>
+                    </tr>
+                </tbody>
+            </table>
+            <br>
+            <li>imgタグ</li>
+            <p>画像が表示されない場合のaltも設定してください。</p>
+            <img src="code.jpg">
+            <br>
+            <li>ulタグ</li>
+            <p>CSSを使えば丸い点を消したり、点以外の文字や記号に変更できます。</p>
+            <ul list-style-type: circle;>
+                <li>HTML</li>
+                <li>CSS</li>
+                <li>Javascript</li>
+            </ul>
+            <br>
+            <li>fromタグ</li>
+            <p>会員登録やお問い合わせなどでよく見る入力欄は、formで実装します。</p>
+            <p>HTMLだけで実装できるのは見た目部分になりますが、PHPを使えば処理を実装できます。</p>
+            <form>
+                <div>
+                    <label>お名前：</label>
+                    <input type="text" placeholder="田中 太郎">
+                </div>
+                <div>
+                    <label>性別：</label>
+                    <label>
+                        男性
+                        <input type="radio" name="gender">
+                    </label>
+                    <label>
+                        女性
+                        <input type="radio" name="gender">
+                    </label>
+
+                </div>
+                <div>
+                    <label>年齢：</label>
+                    <select>
+                        <option>20歳未満</option>
+                        <option>20~29歳</option>
+                        <option>30~39歳</option>
+                        <option>40~49歳</option>
+                        <option>50~59歳</option>
+                        <option>60歳以上</option>
+                    </select>
+                </div>
+                <div>
+                    <label>抱負：</label>
+                    <textarea></textarea>
+
+                </div>
+                <input type="submit" value="送信">
+            </form>
+            <p>最後に↓の「トップへ戻る」を押すとページのトップへ移動する実装をしてください。</p>
+            <section>
+                <a href="#">トップに戻る</a>
+            </section>
+        </ol>
+
+    </div>
+</body>
+
+</html>
