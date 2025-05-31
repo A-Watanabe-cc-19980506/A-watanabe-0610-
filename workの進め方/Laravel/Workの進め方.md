@@ -30,8 +30,7 @@ workの進め方\Laravel\環境構築.md　を参照
 
 ■実装要件  
 ・workの進め方/Laravel/実装要件.md　を参照  
-・Googleドライブ>カリキュラム生共有>workの実装資料>Laravel　を参照  
-https://drive.google.com/drive/u/0/folders/10TLlIa-O0rmUaU2GTlI89vB2aQ-JQiwf
+・workの進め方/Laravel/Laravel実装概要.pdf　を参照  
 
 提出に際して  
 ---
