@@ -12,3 +12,5 @@ https://work.code-strategy.app/work/javascript
 
 ■実装要件  
 ・workの進め方/JavaScript/JavaScript実装概要.pdf　を参照  
+・workの進め方/JavaScript/JavaScript実装概要.md　を参照  
+※PDFの内容の文字を抽出してMarkdownにしたファイルです
