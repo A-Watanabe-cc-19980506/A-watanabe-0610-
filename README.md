@@ -77,7 +77,7 @@ Workは、お客様から依頼をいただいた想定で取り組んで提出�
 
 当カリキュラムではHTML,CSS,JavaScript,PHP,MySQL,Laravelの計6つのworkを用意しています。  
 口頭テストもworkの分だけ用意しています。  
-カリキュラムはCodeStrategyで学習してから、work実装する順で進めてください。  
+カリキュラムはCodeStrategyで学習してから、workを実装する順に進めてください。  
 例えばCodeStrategyでHTMLの単元を学習し終えたら、CodeStrategyでCSSの単元に進むのではなくHTMLのworkを実装して提出してください。  
 講師が提出されたworkをレビューします。  
 講師から承認されたら、口頭テストの日程調整を行いCodeStrategyでCSSの単元を学習し、workのCSSを実装して提出する、という流れで進めてください。  
