@@ -62,15 +62,25 @@ Workは、お客様から依頼をいただいた想定で取り組んで提出�
 
 [こちら](https://work.code-strategy.app/)を見本に実装してください。
 
+### 口頭理解度テストについて
+
+---
+
+口頭テストはCodeStrategyの内容を理解しているか、Workの実装を理解しているか確認するために行います。  
+そのためテスト内容はCodeStrategyの内容とWorkの実装になります。  
+実施タイミングはworkが完了したタイミングで日程を調整して実施します。  
+形式は1問1答ですが、認識合わせのための逆質問を行っても問題ありません。  
+
 ### カリキュラムの進め方
 
 ---
 
-当カリキュラムではHTML,CSS,JavaScript,PHP,MySQL,Laravelの計6つのworkを用意しています。  
-カリキュラムはCodeStrategyで学習しながら、workを順に実装していく流れで進めてください。  
+当カリキュラムではHTML,CSS,JavaScript,PHP,MySQL,Laravelの計6つのworkを用意しています。
+口頭テストもworkの分だけ用意しています。
+カリキュラムはCodeStrategyで学習してから、work実装する順で進めてください。  
 例えばCodeStrategyでHTMLの単元を学習し終えたら、CodeStrategyでCSSの単元に進むのではなくHTMLのworkを実装して提出してください。  
 講師が提出されたworkをレビューします。  
-講師から承認されたらCodeStrategyでCSSの単元を学習し、workのCSSを実装して提出する、という流れで進めてください。  
+講師から承認されたら、口頭テストの日程調整を行いCodeStrategyでCSSの単元を学習し、workのCSSを実装して提出する、という流れで進めてください。  
 講師のレビュー待ちで手が空いてしまう場合はCSSの単元に進めてもよいです。  
 ただしレビューが返ってきたらHTMLのworkの修正を優先して行ってください。  
 
@@ -79,6 +89,7 @@ Workは、お客様から依頼をいただいた想定で取り組んで提出�
 - HTMLのworkを実装、提出
 - HTMLのレビュー待ちの間、CodeStrategyでCSSの単元を学習
 - レビューが返ってきたらHTMLのworkを修正
+- 講師がworkを承認したら口頭テストの日程調整を行う
 
 ### Workの提出  
 
