@@ -30,7 +30,8 @@ CodeStrategyで習得した知識をもとに、Workに取り組んでいただ�
 
 カリキュラム導入のときに簡単に説明したと思いますが、CodeStrategyについての概要を書いていきます。  
 まだCodeStrategyのページが見れないという方は、講師に連絡お願いします！  
-CodeStrategyのリンクは[こちら](https://www.notion.so/care-con/Code-Strategy-2a14383c47c380b59445cab8aae7554e)です。
+CodeStrategyのリンクは[こちら](https://www.notion.so/care-con/Code-Strategy-2a14383c47c380b59445cab8aae7554e)です。  
+外部カリキュラム生用のCodeStrategyのリンクは[こちら](https://www.notion.so/care-con/2ef4383c47c3800d810dfc664d53cd98)です。
 
 #### 概要  
 
