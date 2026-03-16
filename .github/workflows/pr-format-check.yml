@@ -92,6 +92,8 @@ jobs:
       - name: PR タイトルのチェック
         id: title
         continue-on-error: true
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
           # ---------------------------------------------------------------
           # PR タイトルのチェック
@@ -117,7 +119,7 @@ jobs:
           # 後続のステップ（コメント投稿）は継続して実行される。
           # ---------------------------------------------------------------
 
-          TITLE="${{ github.event.pull_request.title }}"
+          TITLE="$PR_TITLE"
 
           # 全角英数字チェック (０-９ / Ａ-Ｚ / ａ-ｚ)
           if echo "$TITLE" | grep -qP '[\x{FF10}-\x{FF19}\x{FF21}-\x{FF3A}\x{FF41}-\x{FF5A}]'; then
