@@ -1,0 +1,261 @@
+name: PR 書式チェック
+
+on:
+  pull_request:
+    types:
+    - opened
+    - edited
+    - synchronize # コミットが追加されたとき
+    - reopened
+
+jobs:
+  check-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write  # PR へのコメント投稿に必要
+    steps:
+      - name: 提出先ブランチのチェック
+        id: branch
+        continue-on-error: true
+        run: |
+          # ---------------------------------------------------------------
+          # 提出先ブランチのチェック
+          #
+          # ブランチ名とマージ先が規則に沿っているかを2段階で検証する。
+          #
+          # [検証1] ブランチ名の形式
+          #   提出ブランチは submit/{参加日}/{氏名}/{単元名} の形式でなければならない。
+          #   正規表現 ^submit/[0-9]{8}/[^/]+/[^/]+$ でこの形式を確認する。
+          #
+          # [検証2] マージ先ブランチ
+          #   提出ブランチのプレフィックス (submit/{参加日}/{氏名}) を取り出し、
+          #   末尾に /parent を付けたブランチが正しいマージ先となる。
+          #   例: submit/20230101/yamada/JavaScript → submit/20230101/yamada/parent
+          #
+          # エラー時はログへ echo するとともに、コメント投稿用の Markdown を
+          # /tmp/branch_error.md に書き出して exit 1 する。
+          # continue-on-error: true により、このステップが失敗しても
+          # 後続のステップ（タイトルチェック・コメント投稿）は継続して実行される。
+          # ---------------------------------------------------------------
+
+          HEAD="${{ github.head_ref }}"
+          BASE="${{ github.base_ref }}"
+
+          # 末尾スラッシュを正規化
+          HEAD=$(echo "$HEAD" | sed 's|/*$||')
+
+          # ブランチ名の形式チェック
+          if ! echo "$HEAD" | grep -qE '^submit/[0-9]{8}/[^/]+/[^/]+$'; then
+            echo ""
+            echo "❌ ブランチ名の形式が正しくありません"
+            echo "  あなたのブランチ: $HEAD"
+            echo "  正しい形式: submit/{参加日}/{氏名}/{単元名}"
+            echo "▶ ブランチ名の変更方法は講師に確認してください"
+
+            cat > /tmp/branch_error.md << EOF
+          ### ❌ ブランチ名の形式が正しくありません
+
+          **あなたのブランチ:** \`$HEAD\`
+          **正しい形式:** \`submit/{参加日}/{氏名}/{単元名}\`
+
+          **▶ ブランチ名の変更方法は講師に確認してください**
+          EOF
+            exit 1
+          fi
+
+          # 期待されるマージ先を計算
+          PREFIX=$(echo "$HEAD" | sed 's|/[^/]*$||')
+          EXPECTED_BASE="${PREFIX}/parent"
+
+          if [[ "$BASE" != "$EXPECTED_BASE" ]]; then
+            echo ""
+            echo "❌ プルリクエストの提出先が間違っています"
+            echo "  現在の提出先: $BASE"
+            echo "  正しい提出先: $EXPECTED_BASE"
+            echo "▶ 修正方法: プルリクエストのタイトル右の Edit ボタンをクリックして '$EXPECTED_BASE' に変更してください"
+
+            cat > /tmp/branch_error.md << EOF
+          ### ❌ プルリクエストの提出先が間違っています
+
+          | | ブランチ |
+          |---|---|
+          | 現在の提出先 | \`$BASE\` |
+          | 正しい提出先 | \`$EXPECTED_BASE\` |
+
+          **▶ 修正方法:** プルリクエストのタイトル右の Edit ボタンをクリックして \`$EXPECTED_BASE\` に変更してください
+          EOF
+            exit 1
+          fi
+
+          echo "✅ 提出先ブランチ OK: $HEAD → $BASE"
+
+      - name: PR タイトルのチェック
+        id: title
+        continue-on-error: true
+        run: |
+          # ---------------------------------------------------------------
+          # PR タイトルのチェック
+          #
+          # タイトルが規定の形式 [{単元名}]{氏名} になっているかを2段階で検証する。
+          #
+          # [検証1] 全角英数字の混入チェック
+          #   PCRE の Unicode コードポイント範囲で全角数字 (U+FF10–FF19)・
+          #   全角大文字 (U+FF21–FF3A)・全角小文字 (U+FF41–FF5A) を検出する。
+          #   いずれかが含まれていればエラーとする。
+          #
+          # [検証2] タイトル形式チェック
+          #   正規表現で単元名と氏名の構造を検証する。
+          #   - 単元名は HTML / CSS / JavaScript / MySQL / PHP / Laravel のいずれか
+          #     (大文字小文字を問わない)
+          #   - Laravel のみ、後ろに連番 (1–3) を付けることができる。
+          #     連番の形式は (1) / 1 / ① のいずれでもよく、前に空白を挟んでもよい。
+          #   - 単元名の後ろに氏名が1文字以上続くこと
+          #
+          # エラー時はログへ echo するとともに、コメント投稿用の Markdown を
+          # /tmp/title_error.md に書き出して exit 1 する。
+          # continue-on-error: true により、このステップが失敗しても
+          # 後続のステップ（コメント投稿）は継続して実行される。
+          # ---------------------------------------------------------------
+
+          TITLE="${{ github.event.pull_request.title }}"
+
+          # 全角英数字チェック (０-９ / Ａ-Ｚ / ａ-ｚ)
+          if echo "$TITLE" | grep -qP '[\x{FF10}-\x{FF19}\x{FF21}-\x{FF3A}\x{FF41}-\x{FF5A}]'; then
+            echo ""
+            echo "❌ タイトルに全角の英数字が含まれています"
+            echo "  現在のタイトル: $TITLE"
+            echo "▶ 単元名は半角文字で入力してください"
+            echo "  例) ✗ [ＨＴＭＬ] → ✓ [HTML]"
+            echo "  プルリクエストのタイトル右の Edit ボタンをクリックして変更してください"
+
+            cat > /tmp/title_error.md << EOF
+          ### ❌ タイトルに全角の英数字が含まれています
+
+          **現在のタイトル:** $TITLE
+
+          単元名は半角文字で入力してください。
+          例）✗ \`[ＨＴＭＬ]\` → ✓ \`[HTML]\`
+
+          **▶ プルリクエストのタイトル右の Edit ボタンをクリックして変更してください**
+          EOF
+            exit 1
+          fi
+
+          # タイトル形式チェック: [{単元名}]{氏名}
+          # Laravel の連番: (1)(2)(3) / 1 2 3 / ① ② ③（スペースあり・なし両方許容）
+          UNIT_PAT='(?i)^\[(HTML|CSS|JavaScript|MySQL|PHP|Laravel ?(\([1-3]\)|[1-3]|[①②③])?)\].+'
+          if ! echo "$TITLE" | grep -qP "$UNIT_PAT"; then
+            echo ""
+            echo "❌ プルリクエストのタイトルの形式が正しくありません"
+            echo "  現在のタイトル: $TITLE"
+            echo "  正しい形式: [{単元名}]{氏名}"
+            echo "  使える単元名: HTML / CSS / JavaScript / MySQL / PHP / Laravel"
+            echo "  ※ Laravel は番号も付けてください: [Laravel (1)] [Laravel 1] [Laravel ①]"
+            echo "  例) [HTML]山田太郎  [CSS]鈴木花子  [Laravel (1)]田中一郎"
+            echo "▶ プルリクエストのタイトル右の Edit ボタンをクリックして変更してください"
+
+            cat > /tmp/title_error.md << EOF
+          ### ❌ プルリクエストのタイトルの形式が正しくありません
+
+          **現在のタイトル:** $TITLE
+
+          **正しい形式:** \`[{単元名}]{氏名}\`
+
+          使える単元名: \`HTML\` / \`CSS\` / \`JavaScript\` / \`MySQL\` / \`PHP\` / \`Laravel\`
+          ※ Laravel は番号も付けてください: \`[Laravel (1)]\` \`[Laravel 1]\` \`[Laravel ①]\`
+
+          **例）** \`[HTML]山田太郎\`  \`[CSS]鈴木花子\`  \`[Laravel (1)]田中一郎\`
+
+          **▶ プルリクエストのタイトル右の Edit ボタンをクリックして変更してください**
+          EOF
+            exit 1
+          fi
+
+          echo "✅ PR タイトル OK: $TITLE"
+
+      - name: エラーを PR にコメント投稿
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // ---------------------------------------------------------------
+            // エラーを PR にコメント投稿
+            //
+            // 前のステップが書き出したエラーファイルを読み込み、
+            // PR にコメントとして投稿する。
+            // if: always() により、前のステップが失敗していても必ず実行される。
+            //
+            // [既存コメントの削除]
+            //   重複投稿を避けるため、このワークフローが過去に投稿したコメントを
+            //   先に削除する。コメントの識別には HTML コメント形式のマーカー文字列
+            //   <!-- pr-format-check-bot --> を使用する。
+            //   (コメント本文の先頭に埋め込んであり、GitHub の画面上には表示されない)
+            //
+            // [新規投稿]
+            //   エラーファイルが1つも存在しない場合（全チェック通過）は
+            //   削除のみ行い、投稿はしない。
+            //   エラーがある場合は各エラーを結合して1つのコメントとして投稿する。
+            // ---------------------------------------------------------------
+
+            const fs = require('fs');
+            const sections = [];
+
+            for (const file of ['/tmp/branch_error.md', '/tmp/title_error.md']) {
+              try {
+                sections.push(fs.readFileSync(file, 'utf8').trim());
+              } catch {}
+            }
+
+            const MARKER = '<!-- pr-format-check-bot -->';
+
+            // 既存の bot コメントを削除
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+            });
+
+            for (const comment of comments) {
+              if (comment.body.includes(MARKER)) {
+                await github.rest.issues.deleteComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: comment.id,
+                });
+              }
+            }
+
+            // エラーがなければここで終了（削除のみ行われる）
+            if (sections.length === 0) return;
+
+            // 新規コメント投稿
+            const body = [
+              MARKER,
+              '## ⚠️ プルリクエストチェックでエラーが見つかりました',
+              '',
+              sections.join('\n\n---\n\n'),
+              '',
+              '---',
+              '*修正後、新たにコミットをプッシュすると再チェックされます。*',
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body,
+            });
+
+      - name: チェック結果の最終判定
+        if: always()
+        run: |
+          FAILED=false
+          [ -f /tmp/branch_error.md ] && FAILED=true
+          [ -f /tmp/title_error.md  ] && FAILED=true
+
+          if [ "$FAILED" = "true" ]; then
+            echo "❌ エラーがあります。プルリクエストのコメントを確認してください。"
+            exit 1
+          fi
+
+          echo "✅ 全てのチェックに通過しました"
