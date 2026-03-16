@@ -17,6 +17,11 @@ jobs:
       - name: 提出先ブランチのチェック
         id: branch
         continue-on-error: true
+        # $ {{ }} 式を run: 内のシェルに直接展開すると、値に " などの特殊文字が含まれる場合に
+        # シェルのクォートが崩れるため、env: 経由で環境変数として渡す。
+        env:
+          GH_HEAD_REF: ${{ github.head_ref }}
+          GH_BASE_REF: ${{ github.base_ref }}
         run: |
           # ---------------------------------------------------------------
           # 提出先ブランチのチェック
@@ -38,8 +43,8 @@ jobs:
           # 後続のステップ（タイトルチェック・コメント投稿）は継続して実行される。
           # ---------------------------------------------------------------
 
-          HEAD="${{ github.head_ref }}"
-          BASE="${{ github.base_ref }}"
+          HEAD="$GH_HEAD_REF"
+          BASE="$GH_BASE_REF"
 
           # 末尾スラッシュを正規化
           HEAD=$(echo "$HEAD" | sed 's|/*$||')
@@ -92,6 +97,8 @@ jobs:
       - name: PR タイトルのチェック
         id: title
         continue-on-error: true
+        # $ {{ }} 式を run: 内のシェルに直接展開すると、値に " などの特殊文字が含まれる場合に
+        # シェルのクォートが崩れるため、env: 経由で環境変数として渡す。
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
