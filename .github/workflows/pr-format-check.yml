@@ -8,6 +8,10 @@ on:
     - synchronize # コミットが追加されたとき
     - reopened
 
+concurrency:
+  group: pr-format-check-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   check-pr:
     runs-on: ubuntu-latest
