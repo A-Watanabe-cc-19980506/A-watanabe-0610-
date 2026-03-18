@@ -158,14 +158,14 @@ jobs:
           echo "has_error=true" >> "$GITHUB_OUTPUT"
 
       - name: エラーを PR にコメント投稿
-        if: always() && steps.build-message.outputs.has_error == 'true'
+        if: steps.build-message.outputs.has_error == 'true'
         uses: marocchino/sticky-pull-request-comment@70d2764d1a7d5d9560b100cbea0077fc8f633987  # v3
         with:
           header: pr-format-check
           path: /tmp/comment.md
 
       - name: チェック通過のためコメントを削除
-        if: always() && steps.build-message.outputs.has_error == 'false'
+        if: steps.build-message.outputs.has_error == 'false'
         uses: marocchino/sticky-pull-request-comment@70d2764d1a7d5d9560b100cbea0077fc8f633987  # v3
         with:
           header: pr-format-check
