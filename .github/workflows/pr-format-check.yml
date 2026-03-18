@@ -29,72 +29,26 @@ jobs:
         # ---------------------------------------------------------------
         # 提出先ブランチのチェック
         #
-        # ブランチ名とマージ先が規則に沿っているかを2段階で検証する。
+        # マージ先 (BASE) が submit/{参加日}/{氏名}/parent の形式かを検証する。
         #
-        # [検証1] ブランチ名の形式
-        #   提出ブランチは submit/{参加日}/{氏名}/{単元名} の形式でなければならない。
-        #   正規表現 ^submit/[0-9]{8}/[^/]+/[^/]+$ でこの形式を確認する。
-        #
-        # [検証2] マージ先ブランチ
-        #   提出ブランチのプレフィックス (submit/{参加日}/{氏名}) を取り出し、
-        #   末尾に /parent を付けたブランチが正しいマージ先となる。
-        #   例: submit/20230101/yamada/JavaScript → submit/20230101/yamada/parent
+        # HEAD が submit/{参加日}/{氏名}/{単元名} の形式であれば、
+        # そこから正確な提出先を導出してエラーメッセージに含める。
+        # HEAD がこの形式でない場合は汎用メッセージにフォールバックする。
         #
         # エラー時はコメント投稿用の Markdown を /tmp/branch_error.md に書き出して exit 1 する。
         # continue-on-error: true により、このステップが失敗しても
         # 後続のステップ（タイトルチェック・コメント投稿）は継続して実行される。
         # ---------------------------------------------------------------
         run: |
-          HEAD="$GH_HEAD_REF"
+          HEAD=$(echo "$GH_HEAD_REF" | sed 's|/*$||')
           BASE="$GH_BASE_REF"
 
-          # 末尾スラッシュを正規化
-          HEAD=$(echo "$HEAD" | sed 's|/*$||')
+          if ! echo "$BASE" | grep -qE '^submit/[0-9]{8}/[^/]+/parent$'; then
 
-          # ブランチ名の形式チェック
-          if ! echo "$HEAD" | grep -qE '^submit/[0-9]{8}/[^/]+/[^/]+$'; then
-            cat > /tmp/branch_error.md << EOF
-          ### ❌ ブランチ名の形式が正しくありません
-
-          **この提出元のブランチ:** \`$HEAD\`
-          **正しい形式:** \`submit/{参加日}/{氏名}/{単元名}\`
-
-          **💡 ブランチ名の変更方法は講師に確認してください**
-
-          <details open>
-          <summary>自力で解決したい方・講師の方はこちら</summary>
-
-          > 1. ローカルのブランチ名を変更する (右辺を正しい形式に書き換えてください)
-          >
-          >     \`\`\`bash
-          >     git branch -m $HEAD submit/{参加日}/{氏名}/{単元名}
-          >     \`\`\`
-          >
-          > 1. 新しい名前でリモートにプッシュする (-u で upstream も新しい名前に更新される)
-          >
-          >     \`\`\`bash
-          >     git push -u origin submit/{参加日}/{氏名}/{単元名}
-          >     \`\`\`
-          >
-          > 1. このPRを閉じ、新しいブランチで改めてPRを作成する
-          >
-          > 1. 古いリモートブランチを削除する (このタイミングで古いPRが自動クローズされる)
-          >
-          >     \`\`\`bash
-          >     git push origin --delete $HEAD
-          >     \`\`\`
-
-          </details>
-          EOF
-            exit 1
-          fi
-
-          # 期待されるマージ先を計算
-          PREFIX=$(echo "$HEAD" | sed 's|/[^/]*$||')
-          EXPECTED_BASE="${PREFIX}/parent"
-
-          if [[ "$BASE" != "$EXPECTED_BASE" ]]; then
-            cat > /tmp/branch_error.md << EOF
+            if echo "$HEAD" | grep -qE '^submit/[0-9]{8}/[^/]+/[^/]+$'; then
+              PREFIX=$(echo "$HEAD" | sed 's|/[^/]*$||')
+              EXPECTED_BASE="${PREFIX}/parent"
+              cat > /tmp/branch_error.md << EOF
           ### ❌ プルリクエストの提出先が間違っています
 
           | | ブランチ |
@@ -104,6 +58,18 @@ jobs:
 
           **💡 修正方法:** プルリクエストのタイトル右の Edit ボタン (✏️) をクリックして \`$EXPECTED_BASE\` に変更してください
           EOF
+            else
+              cat > /tmp/branch_error.md << EOF
+          ### ❌ プルリクエストの提出先が間違っています
+
+          | | ブランチ |
+          |---|---|
+          | 現在の提出先 | \`$BASE\` |
+          | 正しい提出先の形式 | \`submit/{参加日}/{氏名}/parent\` |
+
+          **💡 修正方法:** プルリクエストのタイトル右の Edit ボタン (✏️) をクリックして \`submit/{参加日}/{氏名}/parent\` のブランチ名を探して変更してください
+          EOF
+            fi
             exit 1
           fi
 
