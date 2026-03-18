@@ -121,86 +121,62 @@ jobs:
             exit 1
           fi
 
-      - name: エラーを PR にコメント投稿
+      - name: エラーメッセージを組み立てる
         if: always()
+        id: build-message
         # ---------------------------------------------------------------
-        # エラーを PR にコメント投稿
+        # エラーメッセージを組み立てる
         #
         # 前のステップが書き出したエラーファイルを読み込み、
-        # PR にコメントとして投稿する。
-        # if: always() により、前のステップが失敗していても必ず実行される。
-        #
-        # [既存コメントの削除]
-        #   重複投稿を避けるため、このワークフローが過去に投稿したコメントを
-        #   先に削除する。コメントの識別には HTML コメント形式のマーカー文字列
-        #   <!-- pr-format-check-bot --> を使用する。
-        #   (コメント本文の先頭に埋め込んであり、GitHub の画面上には表示されない)
-        #
-        # [新規投稿]
-        #   エラーファイルが1つも存在しない場合（全チェック通過）は
-        #   削除のみ行い、投稿はしない。
-        #   エラーがある場合は各エラーを結合して1つのコメントとして投稿する。
+        # sticky-pull-request-comment に渡すメッセージファイルを生成する。
+        # エラーファイルが存在しない場合は has_error=false を出力して終了する。
         # ---------------------------------------------------------------
-        uses: actions/github-script@v7
+        run: |
+          SECTIONS=""
+          for file in /tmp/branch_error.md /tmp/title_error.md; do
+            [ -f "$file" ] || continue
+            if [ -n "$SECTIONS" ]; then
+              SECTIONS="${SECTIONS}$(printf '\n\n---\n\n')"
+            fi
+            SECTIONS="$SECTIONS$(cat "$file")"
+          done
+
+          if [ -z "$SECTIONS" ]; then
+            echo "has_error=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          {
+            echo "## ⚠️ プルリクエストチェックでエラーが見つかりました"
+            echo ""
+            echo "$SECTIONS"
+            echo ""
+            echo "---"
+            echo "*修正後は自動的に再チェックされます。*"
+          } > /tmp/comment.md
+
+          echo "has_error=true" >> "$GITHUB_OUTPUT"
+
+      - name: エラーを PR にコメント投稿
+        if: always() && steps.build-message.outputs.has_error == 'true'
+        uses: marocchino/sticky-pull-request-comment@70d2764d1a7d5d9560b100cbea0077fc8f633987  # v3
         with:
-          script: |
-            const fs = require('fs');
-            const sections = [];
+          header: pr-format-check
+          path: /tmp/comment.md
 
-            for (const file of ['/tmp/branch_error.md', '/tmp/title_error.md']) {
-              try {
-                sections.push(fs.readFileSync(file, 'utf8').trim());
-              } catch {}
-            }
-
-            const MARKER = '<!-- pr-format-check-bot -->';
-
-            // 既存の bot コメントを削除
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-            });
-
-            for (const comment of comments) {
-              if (comment.body.includes(MARKER)) {
-                await github.rest.issues.deleteComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  comment_id: comment.id,
-                });
-              }
-            }
-
-            // エラーがなければここで終了（削除のみ行われる）
-            if (sections.length === 0) return;
-
-            // 新規コメント投稿
-            const body = [
-              MARKER,
-              '## ⚠️ プルリクエストチェックでエラーが見つかりました',
-              '',
-              sections.join('\n\n---\n\n'),
-              '',
-              '---',
-              '*修正後は自動的に再チェックされます。*',
-            ].join('\n');
-
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              body,
-            });
+      - name: チェック通過のためコメントを削除
+        if: always() && steps.build-message.outputs.has_error == 'false'
+        uses: marocchino/sticky-pull-request-comment@70d2764d1a7d5d9560b100cbea0077fc8f633987  # v3
+        with:
+          header: pr-format-check
+          delete: true
 
       - name: チェック結果の最終判定
         if: always()
+        env:
+          HAS_ERROR: ${{ steps.build-message.outputs.has_error }}
         run: |
-          FAILED=false
-          [ -f /tmp/branch_error.md ] && FAILED=true
-          [ -f /tmp/title_error.md  ] && FAILED=true
-
-          if [ "$FAILED" = "true" ]; then
+          if [ "$HAS_ERROR" = "true" ]; then
             echo "❌ エラーがあります。プルリクエストのコメントを確認してください。"
             exit 1
           fi
