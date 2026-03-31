@@ -29,7 +29,7 @@ jobs:
         # ---------------------------------------------------------------
         # 提出先ブランチのチェック
         #
-        # マージ先 (BASE) が submit/{参加日}/{氏名}/parent の形式かを検証する。
+        # マージ先 (BASE) が submit/カリキュラム開始年月日/名イニシャル_姓/parent の形式かを検証する。
         #
         # HEAD が submit/{参加日}/{氏名}/{単元名} の形式であれば、
         # そこから正確な提出先を導出してエラーメッセージに含める。
@@ -65,9 +65,9 @@ jobs:
           | | ブランチ |
           |---|---|
           | 現在の提出先 | \`$BASE\` |
-          | 正しい提出先の形式 | \`submit/{参加日}/{氏名}/parent\` |
+          | 正しい提出先の形式 | \`submit/カリキュラム開始年月日/名イニシャル_姓/parent\` |
 
-          **💡 修正方法:** プルリクエストのタイトル右の Edit ボタン (✏️) をクリックして \`submit/{参加日}/{氏名}/parent\` のブランチ名を探して変更してください
+          **💡 修正方法:** プルリクエストのタイトル右の Edit ボタン (✏️) をクリックして \`submit/カリキュラム開始年月日/名イニシャル_姓/parent\` のブランチ名を探して変更してください
           EOF
             fi
             exit 1
@@ -132,16 +132,17 @@ jobs:
         # エラーファイルが存在しない場合は has_error=false を出力して終了する。
         # ---------------------------------------------------------------
         run: |
-          SECTIONS=""
+          FIRST=true
           for file in /tmp/branch_error.md /tmp/title_error.md; do
             [ -f "$file" ] || continue
-            if [ -n "$SECTIONS" ]; then
-              SECTIONS="${SECTIONS}$(printf '\n\n---\n\n')"
+            if [ "$FIRST" != "true" ]; then
+              printf '\n\n---\n\n' >> /tmp/sections.txt
             fi
-            SECTIONS="$SECTIONS$(cat "$file")"
+            cat "$file" >> /tmp/sections.txt
+            FIRST=false
           done
 
-          if [ -z "$SECTIONS" ]; then
+          if [ ! -f /tmp/sections.txt ]; then
             echo "has_error=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -149,7 +150,7 @@ jobs:
           {
             echo "## ⚠️ プルリクエストチェックでエラーが見つかりました"
             echo ""
-            echo "$SECTIONS"
+            cat /tmp/sections.txt
             echo ""
             echo "---"
             echo "*修正後は自動的に再チェックされます。*"
