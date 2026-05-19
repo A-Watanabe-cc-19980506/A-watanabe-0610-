@@ -1,6 +1,17 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
+use App\Models\Category;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RegistrationController;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\admin\AdminController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\admin\ProductController as AdminProductController;
+use App\Http\Controllers\admin\NotificationController as AdminNotificationController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,9 +25,30 @@ use Illuminate\Support\Facades\Route;
 */
 
 // 管理画面
-Route::group(['prefix' => '/admin', 'as' => 'admin.'], function(){
-  // 管理画面トップ
-  Route::get('/', 'admin\AdminController@index')->name('index');
-  // 商品登録画面
-  Route::get('/product/add', 'admin\ProductController@add')->name('product.add');
+Route::middleware(['admin', 'auth'])->group(function () {
+  Route::group(['prefix' => '/admin', 'as' => 'admin.'], function () {
+    // 管理画面トップ
+    Route::get('/', [AdminController::class, 'index'])->name('index');
+    // 商品登録画面
+    Route::get('/product/add', [AdminProductController::class, 'add'])->name('product.add');
+  });
 });
+//トップページの表示
+Route::get('/', [UserController::class, 'index'])->name('user.index');
+//ログインページ表示
+Route::get('/login', [LoginController::class, 'index'])->name('login');
+//送信機能
+Route::post('/login', [LoginController::class, 'login'])
+  ->name('post.login');
+// 会員登録入力画面
+Route::get('/registration/index', [RegistrationController::class, 'create'])
+  ->name('registration.index');
+// 登録情報確認画面
+Route::post('/registration/confirm', [RegistrationController::class, 'show'])
+  ->name('registration.confirm');
+// 登録完了画面
+Route::post('/registration/completed', [RegistrationController::class, 'store'])
+  ->name('registration.completed');
+//ログアウト処理
+Route::post('/logout', [LoginController::class, 'logout'])
+  ->name('logout');
