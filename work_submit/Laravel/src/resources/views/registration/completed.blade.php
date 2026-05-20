@@ -2,7 +2,6 @@
 
 <head>
     <title>登録完了</title>
-    <link rel="stylesheet" href="{{ asset('css/registration.css') }}">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
 </head>
 
@@ -13,7 +12,7 @@
             <a href="{{ route('user.index') }}">トップへ戻る</a>
         </div>
         <div class="login_btn">
-            <a href="{{ route('login') }}">ログイン</a>
+          <a href="{{ route('login') }}">ログイン</a>
         </div>
     </div>
 

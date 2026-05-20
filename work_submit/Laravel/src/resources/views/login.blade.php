@@ -2,7 +2,6 @@
 
 <head>
     <title>ログイン</title>
-    <link rel="stylesheet" href="{{ asset('css/login.css') }}">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
 </head>
 
@@ -26,6 +25,8 @@
             <input class="submit_btn" type="submit" value="ログイン">
         </form>
         <a class="regist_link" href="{{ route('registration.index') }}">会員登録がまだの方はコチラ</a>
+        <br>
+        <a class="regist_link" href="{{ route('reset.form') }}">パスワードを忘れた方はコチラ</a>
     </div>
 </body>
 

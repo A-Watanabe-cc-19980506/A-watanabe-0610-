@@ -2,7 +2,6 @@
 
 <head>
     <title>登録情報確認</title>
-    <link rel="stylesheet" href="{{ asset('css/registration.css') }}">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0">
 </head>
 

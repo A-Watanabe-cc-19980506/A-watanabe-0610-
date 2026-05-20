@@ -78,6 +78,15 @@
             {{-- 確認ボタン --}}
             <input class="submit_btn" type="submit">
         </form>
+        <div>
+            <a href="https://www.google.com" target="_blank" rel="noopener noreferrer">
+                <img src="google-icon.png" alt="Google" width="30" height="30"> Google
+            </a>
+
+            <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer">
+                <img src="facebook-icon.png" alt="Facebook" width="30" height="30"> Facebook
+            </a>
+        </div>
     </div>
 </body>
 

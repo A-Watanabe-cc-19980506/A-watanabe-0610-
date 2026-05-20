@@ -40,6 +40,21 @@ Route::get('/login', [LoginController::class, 'index'])->name('login');
 //送信機能
 Route::post('/login', [LoginController::class, 'login'])
   ->name('post.login');
+//パスワード再設定処理
+Route::prefix('reset')->group(function () {
+    // パスワード再設定用のメール送信フォーム
+    Route::get('/', 'PasswordController@requestResetPassword')->name('reset.form');
+    // メール送信処理
+    Route::post('/send', 'PasswordController@sendResetPasswordMail')->name('reset.send');
+    // メール送信完了
+    Route::get('/send/complete', 'PasswordController@sendCompleteResetPasswordMail')->name('reset.send.complete');
+    // パスワード再設定
+    Route::get('/password/edit', 'PasswordController@resetPassword')->name('reset.password.edit');
+    // パスワード更新
+    Route::post('/password/update', 'PasswordController@updatePassword')->name('reset.password.update');
+});
+
+
 // 会員登録入力画面
 Route::get('/registration/index', [RegistrationController::class, 'create'])
   ->name('registration.index');
@@ -49,6 +64,6 @@ Route::post('/registration/confirm', [RegistrationController::class, 'show'])
 // 登録完了画面
 Route::post('/registration/completed', [RegistrationController::class, 'store'])
   ->name('registration.completed');
-//ログアウト処理
+  //ログアウト処理
 Route::post('/logout', [LoginController::class, 'logout'])
   ->name('logout');
