@@ -27,7 +27,7 @@ class UserRepository implements UserRepositoryInterface
     // メールアドレスからユーザー情報取得
     public function findFromMail(string $email): User
     {
-        return $this->user->where('mail', $mail)->firstOrFail();
+        return $this->user->where('email', $email)->firstOrFail();
     }
 
     // パスワードリセット用トークンを発行

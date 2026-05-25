@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Exception;
 use App\Http\Requests\ResetPasswordRequest;
+use App\Models\User;
+use Illuminate\Support\Str;
 
 class PasswordController extends Controller
 {
@@ -34,25 +36,46 @@ class PasswordController extends Controller
     //  メール送信
     public function sendResetPasswordMail(ResetInputMailRequest $request)
     {
-        try {
-            // ユーザー情報取得
-            $user = $this->userRepository->findFromMail($request->mail);
-            $userToken = $this->userRepository->updateOrCreateUser($user->id);
+        // 1. 入力されたメールアドレスのバリデーション
+        $request->validate(['email' => 'required|email']);
 
-            // メール送信
-            Log::info(__METHOD__ . '...ID:' . $user->id . 'のユーザーにパスワード再設定用メールを送信します。');
-            Mail::send(new ResetPasswordMail($user, $userToken));
-            Log::info(__METHOD__ . '...ID:' . $user->id . 'のユーザーにパスワード再設定用メールを送信しました。');
-        } catch (Exception $e) {
-            Log::error(__METHOD__ . '...ユーザーへのパスワード再設定用メール送信に失敗しました。 request_email = ' . $request->mail . ' error_message = ' . $e);
-            return redirect()->route('reset.form')
-                ->with('flash_message', '処理に失敗しました。時間をおいて再度お試しください。');
+        // 2. データベースからユーザーを検索して $user に代入する 👈 これが必要です！
+        $user = User::where('email', $request->email)->first();
+
+        // もしユーザーが見つからなかったら元の画面に戻す
+        if (!$user) {
+            return back()->withErrors(['email' => 'このメールアドレスは登録されていません。']);
         }
-        // 不正アクセス防止セッションキー
-        session()->put(self::MAIL_SENDED_SESSION_KEY, 'user_reset_password_send_email');
 
-        return redirect()->route('reset.send.complete');
+        // 3. トークンを発行（例）
+        $userToken = Str::random(60);
+
+        try {
+            // これで $user が存在するのでエラーにならなくなります！
+            $mailable = new ResetPasswordMail($user, $userToken);
+            Mail::to($user->email)->send($mailable);
+
+            // テスト用のddは削除し、本来の「送信完了画面」へのリダイレクトに戻します
+            return redirect('/password/reset');
+
+        } catch (\Exception $e) {
+            dd('エラーが発生しました：' . $e->getMessage(), $e);
+        }
     }
+    // try {
+    //         // ユーザー情報取得
+    //         $user = $this->userRepository->findFromMail($request->email);
+    //         $userToken = $this->userRepository->updateOrCreateUser($user->id);
+
+    //         // メール送信
+    //         Log::info(__METHOD__ . '...ID:' . $user->id . 'のユーザーにパスワード再設定用メールを送信します。');
+    //         Mail::to($user->email)->send(new ResetPasswordMail($user, $userToken));
+    //         Log::info(__METHOD__ . '...ID:' . $user->id . 'のユーザーにパスワード再設定用メールを送信しました。');
+    //     } catch (Exception $e) {
+    //         Log::error(__METHOD__ . '...ユーザーへのパスワード再設定用メール送信に失敗しました。 request_email = ' . $request->email . ' error_message = ' . $e);
+    //         return redirect()->route('reset.form')
+    //             ->with('flash_message', '処理に失敗しました。時間をおいて再度お試しください。');
+    //     }
 
     // メール送信完了
     public function sendCompleteResetPasswordMail()

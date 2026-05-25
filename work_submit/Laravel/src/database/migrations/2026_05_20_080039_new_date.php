@@ -15,7 +15,8 @@ class NewDate extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->timestamp('rest_password_expire_data')->nullable()->comment('パスワード再設定キーの有効期限');
-        });
+        $table->string('rest_password_access_key', 64)->nullable()->unique()->comment('パスワード再設定キー');
+            });
     }
 
     /**

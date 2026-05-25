@@ -24,7 +24,7 @@ class ResetInputMailRequest extends FormRequest
     public function rules()
     {
         return [
-            'mail' => ['required', 'email:rfc,dns,filter',  'exists:user,mail']
+            'email' => ['required', 'email:rfc,dns,filter',  'exists:users,email']
         ];
     }
 
@@ -34,10 +34,10 @@ class ResetInputMailRequest extends FormRequest
      */
     public function messages()
     {
-    return [
-        'mail.required' =>  "メールアドレスを入力してください",,
-        'mail.email' => "メールアドレスの形式ではありません",
-        'mail.exists' => "登録しているメールアドレスを入力してください"
+        return [
+            'email.required' =>  "メールアドレスを入力してください",
+            'email.email' => "メールアドレスの形式ではありません",
+            'email.exists' => "登録しているメールアドレスを入力してください"
         ];
     }
 }
