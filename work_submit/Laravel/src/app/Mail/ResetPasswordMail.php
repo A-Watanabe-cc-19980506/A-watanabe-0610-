@@ -17,7 +17,7 @@ class ResetPasswordMail extends Mailable
     use Queueable, SerializesModels;
 
     private User $user;
-    private string$userToken;
+    private $userToken;
 
     /**
      * construct
@@ -39,7 +39,7 @@ class ResetPasswordMail extends Mailable
     public function build()
     {
         // トークン取得
-       $tokenParam = ['reset_token' => $this->userToken];
+        $tokenParam = ['reset_token' => $this->userToken->rest_password_access_key];
         $now = Carbon::now();
 
         // 署名付き有効期限24時間のURLを生成
@@ -47,6 +47,9 @@ class ResetPasswordMail extends Mailable
 
         return $this->view('users.password_reset')
             ->subject('パスワード再設定用URLのご案内')
-            ->from(config('mail.from.address'), config('mail.from.name'));
+            ->with([
+                'user' => $this->user,
+                'url' => $url, // 🔥 これでView側の $url が使えるようになります！
+            ]);
     }
 }

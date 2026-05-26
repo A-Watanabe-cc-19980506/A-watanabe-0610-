@@ -3,9 +3,11 @@
 namespace App\Repositories\Eloquents;
 
 use App\Models\User;
+use App\Models\UserToken;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 
 class UserRepository implements UserRepositoryInterface
@@ -18,7 +20,7 @@ class UserRepository implements UserRepositoryInterface
      *
      * @param User $user
      */
-    public function __construct(User $user, User $userToken)
+    public function __construct(User $user, UserToken $userToken)
     {
         $this->user = $user;
         $this->userToken = $userToken;
@@ -31,25 +33,23 @@ class UserRepository implements UserRepositoryInterface
     }
 
     // パスワードリセット用トークンを発行
-    public function updateOrCreateUser(int $userId): User
+    public function updateOrCreateUser($userId): UserToken
     {
-        $now = Carbon::now();
-        // $userIdをハッシュ化
-        $hashedToken = hash('sha256', $userId);
-        return $this->userToken->updateOrCreate(
+        // パスワードリセット用トークンを生成
+        $accessKey = Str::random(64);
+        $expireDate = now()->addHours(24);
+
+        // updateOrCreate（既存にあれば更新、なければ新規作成）
+        return UserToken::updateOrCreate(
+            ['user_id' => $userId],
             [
-                'id' => $userId,
-            ],
-            [
-                // $hashedTokenを含むトークンを作成
-                'rest_password_access_key' => uniqid(rand(), $hashedToken),
-                // トークンの有効期限を現在から24時間後に設定
-                'rest_password_expire_data' => $now->addHours(24)->toDateTimeString()
+                'rest_password_access_key' => $accessKey,
+                'rest_password_expire_data' => $expireDate,
             ]
         );
     }
-    // トークンからユーザー情報を取得
-    public function getUserTokenFromUser(string $token): User
+    // トークンからユーザートークン情報を取得
+    public function getUserTokenFromUser(string $token): UserToken
     {
         return $this->userToken->where('rest_password_access_key', $token)->firstOrFail();
     }

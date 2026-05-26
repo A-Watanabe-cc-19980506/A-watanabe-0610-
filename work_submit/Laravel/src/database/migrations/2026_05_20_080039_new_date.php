@@ -27,7 +27,7 @@ class NewDate extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('rest_password_expire_data');
+            $table->dropColumn(['rest_password_expire_data', 'rest_password_access_key']);
         });
     }
 }

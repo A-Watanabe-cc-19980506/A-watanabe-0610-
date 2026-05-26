@@ -1,4 +1,3 @@
-
 <?php
 
 namespace App\Http\Requests;
@@ -25,7 +24,7 @@ class ResetPasswordRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'password' => ['required', `regex:/^[0-9a-zA-z-_]{8,32}$/`, 'confirmed'],
+            'password' => ['required', 'regex:/^[0-9a-zA-Z-_]{8,32}$/', 'confirmed'],
             'password_confirmation' => ['required', 'same:password'],
             'reset_token' => ['required', new \App\Rules\TokenExpirationTimeCheck()],
         ];

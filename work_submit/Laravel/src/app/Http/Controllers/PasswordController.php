@@ -13,6 +13,7 @@ use Exception;
 use App\Http\Requests\ResetPasswordRequest;
 use App\Models\User;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 class PasswordController extends Controller
 {
@@ -34,49 +35,32 @@ class PasswordController extends Controller
     }
 
     //  メール送信
+    // メール送信
     public function sendResetPasswordMail(ResetInputMailRequest $request)
     {
         // 1. 入力されたメールアドレスのバリデーション
         $request->validate(['email' => 'required|email']);
 
-        // 2. データベースからユーザーを検索して $user に代入する 👈 これが必要です！
-        $user = User::where('email', $request->email)->first();
-
-        // もしユーザーが見つからなかったら元の画面に戻す
-        if (!$user) {
-            return back()->withErrors(['email' => 'このメールアドレスは登録されていません。']);
-        }
-
-        // 3. トークンを発行（例）
-        $userToken = Str::random(60);
-
         try {
-            // これで $user が存在するのでエラーにならなくなります！
+            // 2. リポジトリを使って、メールアドレスからユーザーを検索（なければ自動でエラーを投げてくれます）
+            $user = $this->userRepository->findFromMail($request->email);
+
+            // 3. 🔥ここが超重要！リポジトリの関数を使って、DBに正しいトークンを保存・発行する
+            // これにより、DBの「rest_password_access_key」にトークンが保存されます。
+            $userToken = $this->userRepository->updateOrCreateUser($user->id);
+            // 4. 正しくDBに保存されたトークン（$userTokenオブジェクト）をメールクラスに引き渡す
             $mailable = new ResetPasswordMail($user, $userToken);
             Mail::to($user->email)->send($mailable);
 
-            // テスト用のddは削除し、本来の「送信完了画面」へのリダイレクトに戻します
-            return redirect('/password/reset');
+            // 送信完了画面へのリダイレクト
+            return view('reset.mail_complete');
 
         } catch (\Exception $e) {
-            dd('エラーが発生しました：' . $e->getMessage(), $e);
+            // 念のためエラーが起きた場合はログに残すか画面に出す
+            Log::error('メール送信エラー: ' . $e->getMessage());
+            return back()->withErrors(['email' => '処理中にエラーが発生しました。']);
         }
     }
-    // try {
-    //         // ユーザー情報取得
-    //         $user = $this->userRepository->findFromMail($request->email);
-    //         $userToken = $this->userRepository->updateOrCreateUser($user->id);
-
-    //         // メール送信
-    //         Log::info(__METHOD__ . '...ID:' . $user->id . 'のユーザーにパスワード再設定用メールを送信します。');
-    //         Mail::to($user->email)->send(new ResetPasswordMail($user, $userToken));
-    //         Log::info(__METHOD__ . '...ID:' . $user->id . 'のユーザーにパスワード再設定用メールを送信しました。');
-    //     } catch (Exception $e) {
-    //         Log::error(__METHOD__ . '...ユーザーへのパスワード再設定用メール送信に失敗しました。 request_email = ' . $request->email . ' error_message = ' . $e);
-    //         return redirect()->route('reset.form')
-    //             ->with('flash_message', '処理に失敗しました。時間をおいて再度お試しください。');
-    //     }
-
     // メール送信完了
     public function sendCompleteResetPasswordMail()
     {
@@ -102,12 +86,13 @@ class PasswordController extends Controller
             // ユーザー情報取得
             $userToken = $this->userRepository->getUserTokenFromUser($resetToken);
         } catch (Exception $e) {
+            dd('DBからトークンが見つかりませんでした。エラー内容:', $e->getMessage());
             Log::error(__METHOD__ . ' UserTokenの取得に失敗しました。 error_message = ' . $e);
             return redirect()->route('reset.form')
                 ->with('flash_message', __('パスワード再設定メールに添付されたURLから遷移してください。'));
         }
 
-        return view('reset.pass_form');
+        return view('reset.pass_form', compact('userToken'));
     }
 
     // パスワード更新
@@ -116,9 +101,9 @@ class PasswordController extends Controller
         try {
             // ユーザー情報取得
             $userToken = $this->userRepository->getUserTokenFromUser($request->reset_token);
-            // パスワード暗号化
-            $password = encrypt($request->password);
-            $this->userRepository->updateUserPassword($password, $userToken->id);
+            // パスワードハッシュ化
+            $password = Hash::make($request->password);
+            $this->userRepository->updateUserPassword($password, $userToken->user_id);
             Log::info(__METHOD__ . '...ID:' . $userToken->user_id . 'のユーザーのパスワードを更新しました。');
         } catch (Exception $e) {
             Log::error(__METHOD__ . '...ユーザーのパスワードの更新に失敗しました。...error_message = ' . $e);

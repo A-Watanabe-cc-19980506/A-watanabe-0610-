@@ -3,6 +3,7 @@
 namespace App\Repositories\Interfaces;
 
 use App\Models\User;
+use App\Models\UserToken;
 
 interface UserRepositoryInterface
 {
@@ -18,15 +19,15 @@ interface UserRepositoryInterface
      * パスワードリセット用トークンを発行
      *
      * @param int $userId
-     * @return User
+     * @return UserToken
      */
-    public function updateOrCreateUser(int $userId): User;
+    public function updateOrCreateUser(int $userId): UserToken;
     /**
-     * トークンからユーザー情報を取得
+     * トークンからユーザートークン情報を取得
      * @param string $token
-     * @return User
+     * @return UserToken
      */
-    public function getUserTokenFromUser(string $token): User;
+    public function getUserTokenFromUser(string $token): UserToken;
 
     /**
      * パスワード更新
