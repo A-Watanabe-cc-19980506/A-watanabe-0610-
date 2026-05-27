@@ -52,8 +52,9 @@ Route::prefix('reset')->group(function () {
   Route::post('/password/update', 'PasswordController@updatePassword')->name('reset.password.update');
   // パスワード再設定用のメール送信フォーム
   Route::get('/', 'PasswordController@requestResetPassword')->name('reset.form');
-
 });
+
+Route::get('search', 'SearchController@search')->name('search');
 
 
 // 会員登録入力画面
