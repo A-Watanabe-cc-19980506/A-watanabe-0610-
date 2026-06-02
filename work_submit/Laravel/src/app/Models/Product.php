@@ -1,40 +1,41 @@
 <?php
-
 namespace App\Models;
 
-use App\Models\Category;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\builder;
 
 class Product extends Model
 {
     use HasFactory;
-    use SoftDeletes;
 
+    // 一括画面から保存を許可するカラム（前の手順で決めた親テーブルの項目）
     protected $fillable = [
         'name',
         'price',
-        'image_path',
-        'category_id',
+        'img_path',
         'description',
+        'category_id',
     ];
 
-    protected $appends = [
-        'category',
-        'taxed_price'
-    ];
-
-    public function category(){
-        return $this->belongsTo('App\Models\Category');
+    /**
+     * リレーション定義：商品バリエーション（子）への紐付け
+     * 1つの商品は、複数のバリエーションを持つ（1対多）
+     */
+    public function variants()
+    {
+        return $this->hasMany(ProductVariation::class);
     }
+    // スコープの定義（メソッド名はキャメルケースで scopeOrderByDirection などにするのがお作法ですが、元の名前に合わせるなら scopeOrder）
+    public function scopeOrder($query, $select)
+    {
+        if ($select === 'asc') {
+            return $query->orderBy('created_at', 'asc');
+        } elseif ($select === 'desc') {
+            return $query->orderBy('created_at', 'desc');
+        }
 
-    public function getCategoryAttribute(){
-        return Category::find($this->category_id)->category;
+        // 引数が不正、または空の場合はデフォルトの全件取得（並び替えなし）
+        return $query;
     }
-
-    public function getTaxedPriceAttribute(){
-        return $this->price * 1.10;
-    }
-    
 }

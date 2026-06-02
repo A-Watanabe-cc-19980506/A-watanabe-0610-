@@ -1,17 +1,10 @@
 <?php
 
-use App\Http\Controllers\CategoryController;
-use App\Models\Category;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\admin\AdminController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\FavoriteController;
-use App\Http\Controllers\admin\ProductController as AdminProductController;
-use App\Http\Controllers\admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\ProductController;
-use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,14 +18,15 @@ use App\Http\Controllers\NotificationController;
 */
 
 // 管理画面
-Route::middleware(['admin', 'auth'])->group(function () {
-  Route::group(['prefix' => '/admin', 'as' => 'admin.'], function () {
-    // 管理画面トップ
-    Route::get('/', [AdminController::class, 'index'])->name('index');
-    // 商品登録画面
-    Route::get('/product/add', [AdminProductController::class, 'add'])->name('product.add');
-  });
-});
+// Route::middleware(['admin', 'auth'])->group(function () {
+//   Route::group(['prefix' => '/admin', 'as' => 'admin.'], function () {
+//     // 管理画面トップ
+//     Route::get('/', [AdminController::class, 'index'])->name('index');
+//     // 商品登録画面
+//     Route::get('/product/add', [AdminProductController::class, 'add'])->name('product.add');
+//   });
+// });
+
 //トップページの表示
 Route::get('/', [UserController::class, 'index'])->name('user.index');
 //ログインページ表示
@@ -40,6 +34,7 @@ Route::get('/login', [LoginController::class, 'index'])->name('login');
 //送信機能
 Route::post('/login', [LoginController::class, 'login'])
   ->name('post.login');
+
 //パスワード再設定処理
 Route::prefix('reset')->group(function () {
   // メール送信処理
@@ -54,9 +49,6 @@ Route::prefix('reset')->group(function () {
   Route::get('/', 'PasswordController@requestResetPassword')->name('reset.form');
 });
 
-Route::get('search', 'SearchController@search')->name('search');
-
-
 // 会員登録入力画面
 Route::get('/registration/index', [RegistrationController::class, 'create'])
   ->name('registration.index');
@@ -69,3 +61,6 @@ Route::post('/registration/completed', [RegistrationController::class, 'store'])
 //ログアウト処理
 Route::post('/logout', [LoginController::class, 'logout'])
   ->name('logout');
+
+//　商品一覧
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');

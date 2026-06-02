@@ -7,23 +7,8 @@
     <title>top画面</title>
 </head>
 
-<body>
-<div class="search_condition">
-    <ul>
-        @if(!empty(request()->keyword))
-        <li class="search_condition_item">
-            {{request()->keyword }}<a href="keyword" class="search_condition_a"><i class="fas fa-times search_condition_delete"></i></a>
-        </li>
-        @endif
-
-        @if(!empty(request()->genre))
-        <li class="search_condition_item">
-            {{request()->genre }}<a href="genre" class="search_condition_a"><i class="fas fa-times search_condition_delete"></i></a>
-        </li>
-        @endif
-    </ul>
-</div>
-
+<body style="margin: 0; padding: 0; font-family: sans-serif; background-color: #f9f9f9;">
+<a href="{{ route('products.index') }}">商品一覧検索へ</a>
 </body>
 
 </html>
