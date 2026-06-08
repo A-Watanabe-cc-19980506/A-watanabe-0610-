@@ -35,22 +35,48 @@
                 <div class="row">
                     @foreach ($products as $product)
                         <div class="col-12 col-sm-6 col-lg-4 mb-4">
-                            <div class="card h-100 shadow-sm border-0 product-card">
-                                <div class="bg-light position-relative"
-                                    style="padding-top: 100%; overflow: hidden; border-radius: 0.25rem 0.25rem 0 0;">
-                                    <img src="{{ $product->img_path ? asset('img/' . $product->img_path) : asset('img/no-image.jpg') }}"
-                                        class="position-absolute w-100 h-100" style="top: 0; left: 0; object-fit: cover;"
-                                        alt="{{ $product->name }}">
+                            <a class="product_link text-decoration-none text-dark"
+                                href="{{ route('products.show', $product->id) }}" style="display: block; height: 100%;">
+                                <div class="card h-100 shadow-sm border-0 product-card d-flex flex-column"
+                                    style="overflow: hidden;">
+
+                                    <div class="position-relative w-100"
+                                        style="padding-top: 100%; background-color: #f8f9fa;">
+                                        @php
+                                            $img = $product->img_url ?? $product->img_path ?? optional($product->imgs->first())->img_url ?? null;
+                                            if ($img) {
+                                                $img = preg_replace('#^/#', '', $img);
+
+                                                if (preg_match('#^https?://#', $img)) {
+                                                    $src = $img;
+                                                } elseif (strpos($img, 'img/') === 0) {
+                                                    $src = asset($img);
+                                                } elseif (strpos($img, 'storage/') === 0) {
+                                                    $src = asset($img);
+                                                } else {
+                                                    $src = asset('storage/products/' . $img);
+                                                }
+                                            } else {
+                                                $src = asset('img/category/books.jpg');
+                                            }
+                                        @endphp
+                                        <img src="{{ $src }}" class="position-absolute w-100 h-100"
+                                            style="top: 0; left: 0; object-fit: cover;" alt="{{ $product->name }}"
+                                            onerror="this.src='{{ asset('img/products/m_shirt_main.jpeg') }}';">
+                                    </div>
+
+                                    <div class="card-body d-flex flex-column p-3">
+                                        <h6 class="card-title font-weight-bold text-dark mb-2"
+                                            style="min-height: 2.4rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                            {{ $product->name }}
+                                        </h6>
+                                        <p class="card-text text-danger font-weight-bold h5 mt-auto mb-0">
+                                            ¥{{ number_format($product->price) }}
+                                        </p>
+                                    </div>
+
                                 </div>
-                                <div class="card-body d-flex flex-column p-3">
-                                    <h6 class="card-title font-weight-bold text-dark mb-2">
-                                        {{ $product->name }}
-                                    </h6>
-                                    <p class="card-text text-danger font-weight-bold h5 mt-auto mb-0">
-                                        ¥{{ number_format($product->price) }}
-                                    </p>
-                                </div>
-                            </div>
+                            </a>
                         </div>
                     @endforeach
                 </div>

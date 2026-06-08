@@ -10,9 +10,7 @@ return new class extends Migration {
         Schema::create('colors', function (Blueprint $table) {
             $table->id();
             $table->string('name')->comment('色名:「ブラック」');
-            $table->timestamp('created_at')->nullable();
-            $table->timestamp('updated_at')->nullable();
-            $table->timestamp('deleted_at')->nullable();
+            $table->string('color_code')->comment('色コード');
         });
     }
 

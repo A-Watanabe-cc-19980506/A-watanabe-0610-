@@ -23,7 +23,7 @@ class ProductController extends Controller
         $sizes = Size::pluck('name', 'id');
 
         // 2. クエリの準備（Productを主役に統一！）
-        $query = Product::with('variants');
+        $query = Product::with('variants', 'imgs');
 
         // 3. カテゴリ絞り込み（値があるときだけ実行される）
         if ($request->filled('category_id')) {
@@ -96,5 +96,16 @@ class ProductController extends Controller
 
         // 共通のビューにすべての変数を渡して表示
         return view("products.index", compact('products', 'categories', 'colors', 'sizes'));
+    }
+    // /* 商品詳細表示 */
+    public function show($id)
+    {
+        // variants の color, size を eager load して JSON シリアライズ時に名前情報が含まれるようにする
+        $product = Product::with(['variants.color', 'variants.size', 'imgs','category','productFavorites'])->findOrFail($id);
+        $allColors = Color::all();
+        $allSizes = Size::all();
+        $category = $product->category;
+        // views/products/show.blade.php を返す
+        return view('products.show', compact('product','allColors','allSizes','category'));
     }
 }

@@ -10,10 +10,11 @@ return new class extends Migration {
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name')->comment('カテゴリ名: メンズ、レディース、キッズ');
-            $table->integer('sort_order')->default(0)->comment('並び順用の数値');
+            $table->foreignId('parent_id')->nullable()->constrained('categories')->onDelete('cascade');
+            $table->tinyInteger('level')->default(1)->comment('カテゴリの階層');
+            $table->integer('sort')->default(0)->comment('並び順用の数値');
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
-            $table->timestamp('deleted_at')->nullable();
         });
     }
 

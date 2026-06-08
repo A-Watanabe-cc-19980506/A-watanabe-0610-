@@ -9,6 +9,8 @@
 
 <body style="margin: 0; padding: 0; font-family: sans-serif; background-color: #f9f9f9;">
 <a href="{{ route('products.index') }}">商品一覧検索へ</a>
+<br>
+<a href="{{ route('login') }}">ログイン画面へ</a>
 </body>
 
 </html>

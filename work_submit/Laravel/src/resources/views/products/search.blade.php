@@ -53,7 +53,7 @@
                     class="form-control form-control-sm custom-select custom-select-sm border-secondary-subtle">
                     <option value="">指定なし</option>
                     @foreach($sizes as $id => $name)
-                        <option value="{{ $id }}" {{ request('size') == 'size' ? 'selected' : '' }}>{{ $name }}</option>
+                        <option value="{{ $id }}" {{ request('size') == $id ? 'selected' : '' }}>{{ $name }}</option>
                     @endforeach
                 </select>
             </div>

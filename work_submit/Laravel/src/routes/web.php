@@ -5,6 +5,7 @@ use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\FavoriteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,3 +65,13 @@ Route::post('/logout', [LoginController::class, 'logout'])
 
 //　商品一覧
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+// 商品詳細
+Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
+
+//お気に入り機能
+Route::middleware(['auth'])->group(function () {
+  //お気に入り追加
+  Route::post('/favorites/{product}', [FavoriteController::class, 'store'])->name('favorite.store');
+  //お気に入り削除
+  Route::delete('/favorites/{product}', [FavoriteController::class, 'destroy'])->name('favorite.destroy');
+});
