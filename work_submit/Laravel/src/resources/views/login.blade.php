@@ -13,6 +13,9 @@
         <p class="display-6">ログイン画面</p>
         <form method="post" action="{{ route('post.login') }}">
             @csrf
+            @if(!empty($redirect_to))
+                <input type="hidden" name="redirect_to" value="{{ $redirect_to }}">
+            @endif
             <label class="input_label" for="email">メールアドレス</label>
             <br>
             <input class="form-control" style="margin-bottom:20px;" id="email" type="email" name="email"

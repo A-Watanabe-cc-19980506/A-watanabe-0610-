@@ -6,6 +6,9 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\PasswordController;
+use App\Http\Controllers\CheckoutController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,15 +42,15 @@ Route::post('/login', [LoginController::class, 'login'])
 //パスワード再設定処理
 Route::prefix('reset')->group(function () {
   // メール送信処理
-  Route::post('/send', 'PasswordController@sendResetPasswordMail')->name('reset.send');
+  Route::post('/send', [PasswordController::class, 'sendResetPasswordMail'])->name('reset.send');
   // メール送信完了
-  Route::get('/send/complete', 'PasswordController@sendCompleteResetPasswordMail')->name('reset.send.complete');
+  Route::get('/send/complete', [PasswordController::class, 'sendCompleteResetPasswordMail'])->name('reset.send.complete');
   // パスワード再設定
-  Route::get('/password/edit', 'PasswordController@resetPassword')->name('reset.password.edit');
+  Route::get('/password/edit', [PasswordController::class, 'resetPassword'])->name('reset.password.edit');
   // パスワード更新
-  Route::post('/password/update', 'PasswordController@updatePassword')->name('reset.password.update');
+  Route::post('/password/update', [PasswordController::class, 'updatePassword'])->name('reset.password.update');
   // パスワード再設定用のメール送信フォーム
-  Route::get('/', 'PasswordController@requestResetPassword')->name('reset.form');
+  Route::get('/', [PasswordController::class, 'requestResetPassword'])->name('reset.form');
 });
 
 // 会員登録入力画面
@@ -67,6 +70,26 @@ Route::post('/logout', [LoginController::class, 'logout'])
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 // 商品詳細
 Route::get('/products/{id}', [ProductController::class, 'show'])->name('products.show');
+
+
+// ★【追加】「購入に進む」を押したときのログインチェック判定
+Route::any('/cart/checkout-check', [CartController::class, 'checkLoginBeforeCheckout'])->name('cart.checkout.check');
+
+// カート画面の表示
+Route::resource('/cart', CartController::class);
+
+
+//確認画面
+Route::middleware(['auth'])->group(function () {
+  // 💡 A. カート画面から最初に向かう「購入確認画面」を表示するルート
+  Route::match(['get', 'post'], '/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+
+  // 💡 B. 確認画面の「注文を確定する」ボタンからStripe決済ページへリダイレクトするルート
+  Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
+
+  // 💡 C. Stripe決済完了後に戻ってくるルート（提示していただいたコードの動く場所）
+  Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+});
 
 //お気に入り機能
 Route::middleware(['auth'])->group(function () {

@@ -9,24 +9,6 @@
     </head>
 
     <body>
-        <!--ログイン後表示-->
-        @auth
-            <div>
-                <ul>
-                    <li>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <input type="submit" name="tab_item" id="logout_input" class="d-none">
-                            <label for="logout_input" class="form-control">ログアウト</label>
-                        </form>
-                    </li>
-                </ul>
-            </div>
-        @endauth
-        <!--ログアウト後表示-->
-        @guest
-                    <li class="breadcrumb-item"><a href="{{ route('login') }}">ログイン</a></li>
-        @endguest
         <div class="container py-5">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb m-0 p-0" style="list-style: none;">
@@ -149,9 +131,10 @@
                             {{ $product->productFavorites->where('user_id', auth()->id())->count() ? 'お気に入り済み' : 'お気に入りに追加' }}
                         </button>
                     @endauth
-                    <form>
+                    <form method="post" action="{{ route('cart.store') }}">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
+                        <input type="hidden" name="product_variation_id" id="productVariationId" value="">
                         <div class="product-selection-area mt-3" style="max-width: 500px;">
                             {{-- 1. 在庫状況表示バッジ --}}
                             <div class="d-flex align-items-center mb-3">
@@ -210,7 +193,15 @@
                                     <option value="10">10</option>
                                 </select>
                             </div>
-
+                            @if ($errors->any())
+                                <div style="color: red; background: #f8d7da; padding: 10px; margin-bottom: 10px;">
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                             {{-- 6. カートボタン（type="submit" に変更してフォームを送信できるようにします） --}}
                             <div class="d-flex gap-3 align-items-center">
                                 <button type="submit"
@@ -283,6 +274,7 @@
                     if (!color || !size) {
                         stockLabel.className = "badge bg-light text-dark border px-3 py-2";
                         stockLabel.innerHTML = "<span style='color: #6c757d;' class='me-2'>●</span> カラーとサイズを選択";
+                        document.getElementById('productVariationId').value = '';
                         setCartButtonState(addToCartBtn, true);
                         return;
                     }
@@ -296,10 +288,11 @@
                     if (!matchedVariant) {
                         stockLabel.className = "badge bg-danger text-white px-3 py-2";
                         stockLabel.innerHTML = "<span class='me-2'>●</span> 売り切れ";
+                        document.getElementById('productVariationId').value = '';
                         setCartButtonState(addToCartBtn, true);
                         return;
                     }
-
+                    document.getElementById('productVariationId').value = matchedVariant.id;
                     const stock = Number(matchedVariant.stock || 0);
                     if (selectedQuantity > stock) {
                         stockLabel.className = "badge bg-danger text-white px-3 py-2";

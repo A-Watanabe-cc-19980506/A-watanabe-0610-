@@ -101,11 +101,11 @@ class ProductController extends Controller
     public function show($id)
     {
         // variants の color, size を eager load して JSON シリアライズ時に名前情報が含まれるようにする
-        $product = Product::with(['variants.color', 'variants.size', 'imgs','category','productFavorites'])->findOrFail($id);
+        $product = Product::with(['variants.color', 'variants.size', 'imgs', 'category', 'productFavorites'])->findOrFail($id);
         $allColors = Color::all();
         $allSizes = Size::all();
         $category = $product->category;
         // views/products/show.blade.php を返す
-        return view('products.show', compact('product','allColors','allSizes','category'));
+        return view('products.show', compact('product', 'allColors', 'allSizes', 'category'));
     }
 }
